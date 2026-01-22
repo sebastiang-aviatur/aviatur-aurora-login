@@ -34,7 +34,7 @@ const Index = () => {
 
         <CardContent>
           <form
-            action="https://b2taurora.grupoaviatur.com/buscar/vuelos/"
+            action="https://b2taurora-qa.grupoaviatur.com/buscar/vuelos/"
             method="post"
             className="space-y-4"
           >
