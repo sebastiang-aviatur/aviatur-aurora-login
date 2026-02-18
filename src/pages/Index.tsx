@@ -1,32 +1,57 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import Confetti from 'react-confetti-boom';
+import Confetti from "react-confetti-boom";
+
+const DEFAULT_QA_URL = "https://b2taurora-qa.grupoaviatur.com/buscar/vuelos/";
+const DEFAULT_LOCAL_URL = "https://aviaturb2tsym.com/buscar/vuelos/";
 
 const Index = () => {
   const [operatorValue, setOperatorValue] = useState("");
   const [isAltEnvironment, setIsAltEnvironment] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [customUrl, setCustomUrl] = useState("");
 
-  const postUrl = isAltEnvironment 
-    ? "https://aviaturb2tsym.com/buscar/vuelos/" 
-    : "https://b2taurora-qa.grupoaviatur.com/buscar/vuelos/";
+  const baseUrl = isAltEnvironment ? DEFAULT_LOCAL_URL : DEFAULT_QA_URL;
 
-  const environmentTitle = isAltEnvironment 
-    ? "Local: aviaturb2tsym.com" 
+  const postUrl = useMemo(() => {
+    return customUrl.trim() !== "" ? customUrl : baseUrl;
+  }, [customUrl, baseUrl]);
+
+  const environmentTitle = isAltEnvironment
+    ? "Local: aviaturb2tsym.com"
     : "QA: Portal de Operadores";
 
   const handleOperatorChange = (e) => {
     setOperatorValue(e.target.value.toUpperCase());
   };
 
+  const handleCustomUrlChange = (e) => {
+    setCustomUrl(e.target.value);
+  };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   const form = e.target;
+
+  //   // Submit manually to dynamic URL
+  //   fetch(postUrl, {
+  //     method: "POST",
+  //     body: new FormData(form),
+  //   }).then(() => {
+  //     window.location.href = postUrl;
+  //   });
+  // };
+
   useEffect(() => {
     const handler = (e) => {
       if (e.shiftKey && e.key === "P") {
-        setIsAltEnvironment(prev => !prev);
-        setShowConfetti(false); // First set to false to allow "re-firing" if needed
+        setIsAltEnvironment((prev) => !prev);
+        setCustomUrl(DEFAULT_LOCAL_URL); // Reset custom URL when toggling env
+        setShowConfetti(false);
         setTimeout(() => setShowConfetti(true), 10);
       }
     };
@@ -35,33 +60,39 @@ const Index = () => {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  
-
   return (
-    <>  
+    <>
       {showConfetti && (
         <div className="fixed inset-0 z-[100] pointer-events-none">
           <Confetti mode="boom" />
         </div>
-      )}  
+      )}
+
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-animated">
         <Card className="w-full max-w-lg relative z-10 shadow-2xl border-0 bg-card/95 backdrop-blur-sm">
           <CardHeader className="text-center space-y-4">
-            <div className="flex justify-center">
-              <img
-                src="https://aviaturcdndev.z5.web.core.windows.net/assets/aviatur_assets/img/header/aviatur_logo_blue.svg"
-                alt="Aviatur Logo"
-                className="h-6 w-auto"
-              />
-            </div>
-
             <CardTitle className="text-2xl font-bold text-foreground">
               {environmentTitle}
             </CardTitle>
 
-            <CardDescription className="text-muted-foreground">
-              Por favor diligencie el formulario. Validaremos estos datos para consultar el usuario.
-            </CardDescription>
+            {isAltEnvironment && (
+              <div className="space-y-2">
+                <Label htmlFor="customUrl">Url Personalizada</Label>
+                <Input
+                  type="text"
+                  id="customUrl"
+                  value={customUrl}
+                  onChange={handleCustomUrlChange}
+                  placeholder={baseUrl}
+                />
+              </div>
+            )}
+
+            {!isAltEnvironment && (
+              <CardDescription className="text-muted-foreground">
+                Por favor diligencie el formulario. Validaremos estos datos para consultar el usuario.
+              </CardDescription>
+            )}
           </CardHeader>
 
           <CardContent>
@@ -70,7 +101,8 @@ const Index = () => {
               method="post"
               className="space-y-4"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Your fields stay exactly the same */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Pre-filled fields */}
                 <div className="space-y-2">
                   <Label htmlFor="externalId">External ID</Label>
@@ -179,7 +211,7 @@ const Index = () => {
               </Button>
             </form>
           </CardContent>
-        </Card>  
+        </Card>
       </div>
     </>
   );
