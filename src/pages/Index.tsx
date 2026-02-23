@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Confetti from "react-confetti-boom";
+import SupportButton from "@/components/SupportButton";
 
 const DEFAULT_QA_URL = "https://b2taurora-qa.grupoaviatur.com/buscar/vuelos/";
 const DEFAULT_LOCAL_URL = "https://aviaturb2tsym.com/buscar/vuelos/";
@@ -212,7 +213,9 @@ const Index = () => {
             </form>
           </CardContent>
         </Card>
+        
       </div>
+      <SupportButton />
     </>
   );
 };
